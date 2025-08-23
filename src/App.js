@@ -1,8 +1,8 @@
-import React from 'react';
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Login';
 import Demo from './Demo';
-import './App.css';
+import CourseDashboard from './course_dashboard.jsx';
 
 function App() {
   return (
@@ -10,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/demo" element={<Demo />} />
+        <Route path="/courses" element={<CourseDashboard />} />
       </Routes>
     </Router>
   );
