@@ -172,6 +172,7 @@ function Header() {
 
 function ConcentricCircles() {
   const [expanded, setExpanded] = useState(0);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -182,22 +183,80 @@ function ConcentricCircles() {
       );
       setExpanded(progress);
     };
+    const handleResize = () => setWindowHeight(window.innerHeight);
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   const isConverged = expanded === layers.length - 1;
 
   return (
-    <CirclesZone>
+    <CirclesZone style={{ position: "relative", minHeight: "80vh" }}>
+      {/* Fixed Centered XINAI Circle */}
+      <LayerCircle
+        style={{
+          width: "46vw",
+          height: "46vw",
+          minWidth: 320,
+          minHeight: 320,
+          background: "linear-gradient(130deg,#5a67d8 0%,#ecc94b 70%)",
+          zIndex: 999,
+          boxShadow: "0 0 140px 0 #222b",
+          position: "fixed",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          pointerEvents: "none",
+        }}
+        initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ scale: 1.15, opacity: 1 }}
+      >
+        <div
+          style={{
+            fontSize: "2.6rem",
+            color: "#fff",
+            fontWeight: 900,
+            padding: "3vh 2vw",
+            textShadow: "0 6px 18px #123b",
+            textAlign: "center",
+            userSelect: "none",
+          }}
+        >
+          XINAI
+          <br />
+          <span
+            style={{
+              fontSize: "1.15rem",
+              color: "#f7ecca",
+              fontWeight: 500,
+              letterSpacing: "2.5px",
+            }}
+          >
+            All Domains, One Vision
+          </span>
+        </div>
+      </LayerCircle>
+
+      {/* Animated AI/ML/etc. Circles */}
       {layers.map((layer, idx) => {
         const isActive = idx <= expanded;
-        const size = isConverged
-          ? "35vw"
-          : `${35 + (layers.length - idx - 1) * 12}vw`;
+        const size = `${35 + (layers.length - idx - 1) * 12}vw`;
         const opacity = isActive ? 0.9 : 0.4;
         const scale = isActive ? 1.075 : 0.95;
         const zIndex = isActive ? 50 + idx : idx;
+
+        // As we scroll, move the circles up and fade out when converged
+        const translateY = isConverged
+          ? -windowHeight * 0.7 - idx * 40
+          : 0;
+        const display = isConverged ? "none" : "flex";
 
         return (
           <LayerCircle
@@ -209,10 +268,13 @@ function ConcentricCircles() {
               opacity,
               zIndex,
               border: isActive ? `5px solid ${layer.color}` : "3px solid #222",
+              display,
+              pointerEvents: "auto",
             }}
             animate={{
               scale: isActive ? scale : 0.93,
               opacity,
+              y: translateY,
             }}
             transition={{ duration: 0.7, type: "spring", stiffness: 80 }}
           >
@@ -234,42 +296,6 @@ function ConcentricCircles() {
           </LayerCircle>
         );
       })}
-      {isConverged && (
-        <LayerCircle
-          style={{
-            width: "46vw",
-            height: "46vw",
-            background: "linear-gradient(130deg,#5a67d8 0%,#ecc94b 70%)",
-            zIndex: 999,
-            boxShadow: "0 0 140px 0 #222b",
-          }}
-          initial={{ scale: 0.7, opacity: 0 }}
-          animate={{ scale: 1.15, opacity: 1 }}
-        >
-          <div
-            style={{
-              fontSize: "2.6rem",
-              color: "#fff",
-              fontWeight: 900,
-              padding: "3vh 2vw",
-              textShadow: "0 6px 18px #123b",
-            }}
-          >
-                   XINAI 
-            <br />
-            <span
-              style={{
-                fontSize: "1.15rem",
-                color: "#f7ecca",
-                fontWeight: 500,
-                letterSpacing: "2.5px",
-              }}
-            >
-              All Domains, One Vision
-            </span>
-          </div>
-        </LayerCircle>
-      )}
     </CirclesZone>
   );
 }
